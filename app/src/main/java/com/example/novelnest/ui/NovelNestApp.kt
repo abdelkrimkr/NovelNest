@@ -1,5 +1,6 @@
 package com.example.novelnest.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -48,18 +50,24 @@ fun NovelApp(){
         ) {
             val novelViewModel : NovelViewModel = viewModel(factory = NovelViewModel.Factory)
             val keyboardController = LocalSoftwareKeyboardController.current
+            val searchName = novelViewModel.searchNameUiState
+            val context = LocalContext.current
             Column(
                     modifier = Modifier. padding(start = 8.dp, end = 8.dp, top = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
-                        value = novelViewModel.searchNameUiState ,
+                        value = searchName ,
                         label = { Text(text = "Search Book")},
                         onValueChange ={ name -> novelViewModel.setSearchName(name)},
                         singleLine = true,
                         keyboardActions = KeyboardActions(
                                 onDone = {
-                                    novelViewModel.getNovel(novelViewModel.searchNameUiState)
+                                    if (searchName.isBlank()){
+                                        Toast.makeText(context, "No text were entered", Toast.LENGTH_SHORT).show()
+                                    }else {
+                                        novelViewModel.getNovel(searchName)
+                                    }
                                     keyboardController?.hide()}),
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
